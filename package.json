@@ -1,0 +1,18 @@
+{
+	"name": "emaily-server-side",
+	"version": "1.0.0",
+	"description": "Express/ Node server side of Emaily app.",
+	"main": "index.js",
+	"engines": {
+		"node": "8.9.4",
+		"npm": "5.6.0"
+	},
+	"scripts": {
+		"start": "node index.js"
+	},
+	"author": "dk",
+	"license": "ISC",
+	"dependencies": {
+		"express": "^4.16.2"
+	}
+}
