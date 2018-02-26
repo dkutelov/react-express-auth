@@ -17,5 +17,7 @@ Boilerplate for react and express/ mongoose authentication with Passport (email-
 
 - password is protected with bcryptjs
 
+- keys for production are heroku variables
+
 
 
