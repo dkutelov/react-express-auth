@@ -1,11 +1,13 @@
 const express = require('express')
 const path = require('path')
+const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 const cookieSession = require('cookie-session')
 const passport = require('passport')
 const flash = require('connect-flash')
 
 const authRoutes = require('./routes/authRoutes')
+const registerRoutes = require('./routes/registerRoutes')
 const keys = require('./config/keys')
 require('./models/User')
 require('./services/passport')
@@ -13,6 +15,10 @@ require('./services/passport')
 mongoose.connect(keys.mongoURI)
 
 const app = express()
+
+// Body parser
+app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json())
 
 // initiate and config cookie-session
 app.use(
@@ -38,7 +44,7 @@ app.use((req, res, next) => {
 
 // Set routes
 app.use('/', authRoutes)
-//require('./routes/authRoutes')(app)
+app.use('/register', registerRoutes)
 
 const PORT = process.env.PORT || 5000
 app.listen(PORT)

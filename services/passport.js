@@ -1,10 +1,12 @@
 const passport = require('passport')
-const LocalStrategy = require('passport-local').Strategy
-const GoogleStrategy = require('passport-google-oauth20')
 const mongoose = require('mongoose')
+const User = require('../models/User')
+
+// PASSPORT STRATEGIES
+const GoogleStrategy = require('passport-google-oauth20')
+const FacebookStrategy = require('passport-facebook').Strategy
 
 const keys = require('../config/keys')
-const User = mongoose.model('users')
 
 passport.serializeUser((user, done) => {
 	done(null, user.id)
@@ -16,31 +18,7 @@ passport.deserializeUser((id, done) => {
 	})
 })
 
-// Local strategy email
-passport.use(
-	new LocalStrategy(
-		{
-			usernameField: 'email',
-			passwordField: 'password',
-			passReqToCallback: true
-		},
-		(req, username, password, done) => {
-			console.log('User name: ', username)
-			User.findOne({ email: username }).then(user => {
-				if (!user) {
-					// No email found/ no existing user
-					return done(null, false, { message: 'Incorrect username.' })
-				}
-				if (!user.validPassword(password)) {
-					return done(null, false, { message: 'Incorrect password.' })
-				}
-				return done(null, user)
-			})
-		}
-	)
-)
-
-// Google Strategy
+// GOOGLE STRATEGY
 passport.use(
 	new GoogleStrategy(
 		{
@@ -49,17 +27,48 @@ passport.use(
 			callbackURL: '/auth/google/callback',
 			proxy: true
 		},
-		(accessToken, refreshToken, profile, done) => {
-			User.findOne({ googleId: profile.id }).then(existingUser => {
-				if (existingUser) {
-					// do something
-					done(null, existingUser)
-				} else {
-					new User({ googleId: profile.id }).save().then(user => {
-						done(null, user)
-					})
+		async (accessToken, refreshToken, profile, done) => {
+			const existingUser = await User.findOne({ googleId: profile.id }).catch(
+				err => {
+					console.log(err)
 				}
-			})
+			)
+			if (existingUser) {
+				return done(null, existingUser)
+			}
+			const user = await new User({ googleId: profile.id })
+				.save()
+				.catch(err => {
+					console.log(err)
+				})
+			done(null, user)
+		}
+	)
+)
+
+// FACEBOOK STRATEGY
+passport.use(
+	new FacebookStrategy(
+		{
+			clientID: keys.facebookAppID,
+			clientSecret: keys.facebookSecret,
+			callbackURL: keys.facebookCallbackURL
+		},
+		async (accessToken, refreshToken, profile, done) => {
+			const oldUser = await User.findOne({ facebookId: profile.id }).catch(
+				err => {
+					console.log(err)
+				}
+			)
+			if (oldUser) {
+				return done(null, oldUser)
+			}
+			const newUser = await new User({ facebookId: profile.id })
+				.save()
+				.catch(err => {
+					console.log(err)
+				})
+			done(null, newUser)
 		}
 	)
 )
