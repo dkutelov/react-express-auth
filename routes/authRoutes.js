@@ -2,8 +2,10 @@ const express = require('express')
 const router = express.Router()
 const passport = require('passport')
 const LocalStrategy = require('passport-local').Strategy
+
 const User = require('../models/User')
 const keys = require('../config/keys')
+const requireLogin = require('../middlewares/requireLogin')
 
 //Local Strategy
 passport.use(
@@ -67,7 +69,7 @@ router.get(
 )
 
 // CHECK USER
-router.get('/api/user', (req, res) => {
+router.get('/api/user', requireLogin, (req, res) => {
 	res.send(req.user)
 })
 
