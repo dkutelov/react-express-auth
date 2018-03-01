@@ -17,7 +17,5 @@ Boilerplate for react and express/ mongoose authentication with Passport (email-
 
 - password is protected with bcryptjs
 
-- keys for production are heroku variables
-
-
-
+- Facebook and Google Id and secret keys need to be set in prod.js or as environment variables
+GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, FACEBOOK_APP_ID, FACEBOOK_SECRET
